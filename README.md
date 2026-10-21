@@ -57,6 +57,34 @@ java -jar target/local-full-text-search-engine.jar update
 Indexes live under `.search-index/default` in the current directory. Run later
 commands from the same directory, or provide an explicit `--index-dir`.
 
+## Measured Demo
+
+Verified on October 21, 2026 using Windows 11, OpenJDK 23.0.1 (Java 21 target),
+and Maven 3.9.9. The seven original sample documents produced 254 unique terms
+and 335 lexical tokens. Actual first results were:
+
+| Query | First result | BM25 score |
+| --- | --- | --- |
+| `distributed systems` | `distributed-systems.md` | 3.249682 |
+| `database index` | `database-index.txt` | 3.249682 |
+| `java AND networking` | `network-routing.md` | 2.415126 |
+
+Measured warm-process search latency, with 100 iterations and 10 warmups using
+`examples/queries.txt` (milliseconds; includes snippet generation):
+
+| Corpus | Mean | Median | P95 | P99 |
+| --- | --- | --- | --- | --- |
+| Seven samples plus one generated PDF | 1.423 | 1.321 | 2.521 | 5.237 |
+| 2,000 synthetic text documents | 5.436 | 5.447 | 9.361 | 11.622 |
+
+The synthetic index contained 2,010 terms and took 22.063 seconds to create in
+this environment. These are local smoke measurements, not performance targets.
+All 31 JUnit tests passed, as did fresh-process checks for persistence,
+incremental additions/modifications/deletions, exact phrases, boolean/prefix
+queries, UTF-8 argument-file queries, generated PDF text, and the four HTTP
+endpoints. Run `scripts/Verify.java` as described under Testing to regenerate
+the measurements and `target/verification.txt` report.
+
 ## CLI Commands and Flags
 
 Global options work before or after the command:
@@ -245,6 +273,12 @@ passes them intact (keep all arguments after `--%` on the same line):
 ```powershell
 java -jar target/local-full-text-search-engine.jar search --% "\"distributed systems\"" --json
 ```
+
+If a Windows native code page changes letters in a Unicode query, save the query
+as a UTF-8 argument file (for example, `query.args` containing `Қазақстан`), then
+run `java -jar target/local-full-text-search-engine.jar search @query.args --json`.
+This passes the query through picocli's argument-file reader instead of native
+command-line character conversion.
 
 ## Snippets
 

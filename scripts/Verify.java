@@ -55,7 +55,11 @@ class Verify {
             require(json("search", "java", "--type", "java", "--json").get("totalHits").asInt() == 1, "Type filter");
             // Every run launches a new JVM; this explicitly verifies restart persistence.
             hits("\"distributed systems\"", 1);
-            hits("Қазақстан", 1);
+            // Windows' native ANSI argv conversion cannot represent every Unicode letter.
+            // picocli reads this UTF-8 argument file without passing the query through argv.
+            Path unicodeQuery = Files.writeString(workspace.resolve("unicode-query.args"), "Қазақстан\n");
+            JsonNode unicodeResponse = json("search", "@" + unicodeQuery, "--json");
+            require(unicodeResponse.get("query").asText().equals("Қазақстан") && unicodeResponse.get("totalHits").asInt() == 1, "Unicode argument-file query");
             require(json("update").get("unchanged").asInt() == 7, "Unchanged count");
             Path lifecycle = docs.resolve("lifecycle.txt"); Files.writeString(lifecycle, "uniquelifecycleinitial");
             require(json("update").get("added").asInt() == 1, "New file"); hits("uniquelifecycleinitial", 1);
