@@ -1,0 +1,12 @@
+target/
+.tools/
+*.zip
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+.search-index/
+indexes/
+*.log

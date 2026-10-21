@@ -1,0 +1,7 @@
+A database index maps search keys to record locations. A B-tree keeps ordered
+keys in pages, reducing random disk access for range scans. An inverted index
+instead maps terms to posting lists containing matching document identifiers.
+
+Database indexing trades write cost and storage space for faster reads.
+Query planners estimate selectivity before choosing an access strategy.
+MySQL is one possible database implementation; this note describes general ideas.

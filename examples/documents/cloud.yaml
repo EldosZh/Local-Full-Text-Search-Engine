@@ -1,0 +1,6 @@
+title: Cloud computing notes
+concepts:
+  - Elastic capacity can absorb changing demand.
+  - A distributed system still needs explicit failure handling.
+  - Database backups require tested restoration procedures.
+  - Monitoring should measure latency and resource saturation.
